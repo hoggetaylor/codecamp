@@ -1,0 +1,126 @@
+<html>
+    <head>
+        <title>PONG</title>
+        <style>
+
+            html, body {
+                margin: 0px;
+                padding: 0px;
+                width: 100%;
+            }
+
+            .title {
+                margin-top: 50px;
+                text-align: center;
+            }
+
+            .score {
+                font-size: 24px;
+                font-weight: bold;
+                padding: 20px;
+            }
+
+            canvas {
+                margin-top: 50px;
+                padding-left: 0;
+                padding-right: 0;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+                background-color: black;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="title">
+            <h1>PONG</h1>
+            <span class="score">0</span>
+            <span class="score">0</span>
+        </div>
+        <canvas width="900" height="500" id="gameCanvas"></canvas>
+
+        <script type="text/javascript">
+
+            // If this variable is true, it means the user is currently pressing down the 'w' key.
+            let wPressed = false;
+            // If this variable is true, it means that the user is currently pressing down the 's' key.
+            let sPressed = false;
+            // This variable holds the current background color of the canvas.
+            let backgroundColor = 'black';
+            // This variable holds a reference to the canvas that lives within the html document.
+            let canvas = document.getElementById('gameCanvas');
+
+            // When the page loads...
+            window.onload = function() {
+                // Listen for keydown events
+                document.onkeydown = function (keyEvent) {
+                    // If the key that went down was the 'w' key...
+                    if (keyEvent.key === 'w') {
+                        // Set the wPressed variable to true
+                        wPressed = true;
+                    // Else, if the key that went down was the 's' key...
+                    } else if (keyEvent.key === 's') {
+                        // Set the sPressed variable to true
+                        sPressed = true;
+                    }
+                }
+                // Listen for keyup events
+                document.onkeyup = function (keyEvent) {
+                    // If the key that went up was the 'w' key...
+                    if (keyEvent.key === 'w') {
+                        // Set the wPressed variable back to false
+                        wPressed = false;
+                    // Else, if the key that went up was the 's' key...
+                    } else if (keyEvent.key === 's') {
+                        // Set the sPressed variable back to false
+                        sPressed = false;
+                    }
+                }
+
+                // Start the game loop
+                // This asks the browser to call the update function
+                // every 16 milliseconds.
+                setInterval(update, 16);
+            }
+
+            // Runs one iteration of the game loop
+            function update() {
+                console.log('Game loop is executing.');
+                // We start the game loop by modifying the current game state
+                // based on the current input from the user
+                checkUserInput();
+                // We end the game loop by rendering the current state of the game
+                // to the canvas.
+                render();
+            }
+
+            // Modifies the game state based on the current user input
+            function checkUserInput() {
+                console.log('Checking user input.');
+                if (wPressed) {
+                    // If the 'w' key is currently pressed, we set the background color to red
+                    console.log('You are currently pressing the w key');
+                    backgroundColor = 'red';
+                } else if (sPressed) {
+                    // If the 's' key is currently pressed, we set the background color to blue
+                    console.log('You are currently pressing the s key');
+                    backgroundColor = 'blue';
+                } else {
+                    // If no key is currently pressed, we set the background color back to black
+                    backgroundColor = 'black';
+                }
+            }
+
+            // Renders the current state of the game to the canvas
+            function render() {
+                console.log('Rendering');
+                let ctx = canvas.getContext('2d');
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+        </script>
+
+    </body>
+</html>
