@@ -46,10 +46,15 @@
             let wPressed = false;
             // If this variable is true, it means that the user is currently pressing down the 's' key.
             let sPressed = false;
+            // If this variable is true, it means that the user is currently pressing down the up arrow.
             let upPressed = false;
+            // If this variable is true, it means that the user is currently pressing down the down arrow.
             let downPressed = false;
             // This variable holds the current background color of the canvas.
             let backgroundColor = 'black';
+            // This object holds the position and size of the left player.
+            // Notice that y is 225 because it equals (canvas.height / 2) - (player.height / 2)
+            let player1 = { x: 10, y: 225, width: 10, height: 50 };
             // This variable holds a reference to the canvas that lives within the html document.
             let canvas = document.getElementById('gameCanvas');
 
@@ -109,20 +114,18 @@
             function checkUserInput() {
                 console.log('Checking user input.');
                 if (wPressed) {
-                    // If the 'w' key is currently pressed, we set the background color to red
-                    console.log('You are currently pressing the w key');
-                    backgroundColor = 'red';
+                    // Move the player upwards
+                    player1.y = player1.y - 5;
                 } else if (sPressed) {
-                    // If the 's' key is currently pressed, we set the background color to blue
-                    console.log('You are currently pressing the s key');
-                    backgroundColor = 'blue';
-                } else if (upPressed) {
-                    backgroundColor = 'green';
-                } else if (downPressed) {
-                    backgroundColor = 'yellow';
-                } else {
-                    // If no key is currently pressed, we set the background color back to black
-                    backgroundColor = 'black';
+                    // Move the player downwards
+                    player1.y = player1.y + 5;
+                }
+
+                // Ensure that the player stays within the canvas
+                if (player1.y < 0) {
+                    player1.y = 0;
+                } else if (player1.y + player1.height > canvas.height) {
+                    player1.y = canvas.height - player1.height;
                 }
             }
 
@@ -130,8 +133,14 @@
             function render() {
                 console.log('Rendering');
                 let ctx = canvas.getContext('2d');
+
+                // Draw the background
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Render player1
+                ctx.fillStyle = 'white';
+                ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
             }
 
         </script>
