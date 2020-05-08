@@ -46,6 +46,8 @@
             let wPressed = false;
             // If this variable is true, it means that the user is currently pressing down the 's' key.
             let sPressed = false;
+            let upPressed = false;
+            let downPressed = false;
             // This variable holds the current background color of the canvas.
             let backgroundColor = 'black';
             // This variable holds a reference to the canvas that lives within the html document.
@@ -63,6 +65,10 @@
                     } else if (keyEvent.key === 's') {
                         // Set the sPressed variable to true
                         sPressed = true;
+                    } else if (keyEvent.key === 'ArrowUp') {
+                        upPressed = true;
+                    } else if (keyEvent.key === 'ArrowDown') {
+                        downPressed = true;
                     }
                 }
                 // Listen for keyup events
@@ -75,6 +81,10 @@
                     } else if (keyEvent.key === 's') {
                         // Set the sPressed variable back to false
                         sPressed = false;
+                    } else if (keyEvent.key === 'ArrowUp') {
+                        upPressed = false;
+                    } else if (keyEvent.key === 'ArrowDown') {
+                        downPressed = false;
                     }
                 }
 
@@ -106,6 +116,10 @@
                     // If the 's' key is currently pressed, we set the background color to blue
                     console.log('You are currently pressing the s key');
                     backgroundColor = 'blue';
+                } else if (upPressed) {
+                    backgroundColor = 'green';
+                } else if (downPressed) {
+                    backgroundColor = 'yellow';
                 } else {
                     // If no key is currently pressed, we set the background color back to black
                     backgroundColor = 'black';
