@@ -55,6 +55,7 @@
             // This object holds the position and size of the left player.
             // Notice that y is 225 because it equals (canvas.height / 2) - (player.height / 2)
             let player1 = { x: 10, y: 225, width: 10, height: 50 };
+            let player2 = { x: 880, y: 255, width: 10, height: 50 };
             // This variable holds a reference to the canvas that lives within the html document.
             let canvas = document.getElementById('gameCanvas');
 
@@ -86,7 +87,7 @@
                     } else if (keyEvent.key === 's') {
                         // Set the sPressed variable back to false
                         sPressed = false;
-                    } else if (keyEvent.key === 'ArrowUp') {
+                    } if (keyEvent.key === 'ArrowUp') {
                         upPressed = false;
                     } else if (keyEvent.key === 'ArrowDown') {
                         downPressed = false;
@@ -118,14 +119,24 @@
                     player1.y = player1.y - 5;
                 } else if (sPressed) {
                     // Move the player downwards
-                    player1.y = player1.y + 5;
+                    player1.y = player1.y + 5
+                        
                 }
-
+                if (upPressed){
+                    player2.y = player2.y - 5;
+                } else if (downPressed) {
+                    player2.y = player2.y + 5;             
+                     }
                 // Ensure that the player stays within the canvas
                 if (player1.y < 0) {
                     player1.y = 0;
                 } else if (player1.y + player1.height > canvas.height) {
                     player1.y = canvas.height - player1.height;
+                } if (player2.y <0) {
+                    player2.y =  0;
+                       
+                } else if (player2.y + player2.height > canvas.height) {
+                    player2.y = canvas.height - player2.height;
                 }
             }
 
@@ -141,6 +152,7 @@
                 // Render player1
                 ctx.fillStyle = 'white';
                 ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+                ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
             }
 
         </script>
