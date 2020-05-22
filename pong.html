@@ -36,7 +36,7 @@
         <div class="title">
             <h1>PONG</h1>
             <span class="score">0</span>
-            <span class="score">0</span>
+            <span class="score" id="player2score">0</span>
         </div>
         <canvas width="900" height="500" id="gameCanvas"></canvas>
 
@@ -50,14 +50,20 @@
             let upPressed = false;
             // If this variable is true, it means that the user is currently pressing down the down arrow.
             let downPressed = false;
+            // If this variable is true, it means that the space bar is currently being pressed down.
+            let spacePressed = false;
             // This variable holds the current background color of the canvas.
             let backgroundColor = 'black';
-            // This object holds the position and size of the left player.
+            // These objects hold the state of each player.
             // Notice that y is 225 because it equals (canvas.height / 2) - (player.height / 2)
             let player1 = { x: 10, y: 225, width: 10, height: 50 };
-            let player2 = { x: 880, y: 255, width: 10, height: 50 };
+            let player2 = { x: 880, y: 225, width: 10, height: 50, score: 0 };
+            // This object holds the state of the ball.
+            let ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
             // This variable holds a reference to the canvas that lives within the html document.
             let canvas = document.getElementById('gameCanvas');
+            // This variable holds a reference to player2's score element in the dom.
+            let player2ScoreElement = document.getElementById('player2score');
 
             // When the page loads...
             window.onload = function() {
@@ -75,6 +81,8 @@
                         upPressed = true;
                     } else if (keyEvent.key === 'ArrowDown') {
                         downPressed = true;
+                    } else if (keyEvent.key === ' ') {
+                        spacePressed = true;
                     }
                 }
                 // Listen for keyup events
@@ -91,6 +99,8 @@
                         upPressed = false;
                     } else if (keyEvent.key === 'ArrowDown') {
                         downPressed = false;
+                    } else if (keyEvent.key === ' ') {
+                        spacePressed = false;
                     }
                 }
 
@@ -106,6 +116,12 @@
                 // We start the game loop by modifying the current game state
                 // based on the current input from the user
                 checkUserInput();
+                // After responding to user input, we update the physics by
+                // moving any objects by their velocity and checking for collisions.
+                updatePhysics();
+                // After physics have been updated, we check to see if either player
+                // has scored a point.
+                updateScore();
                 // We end the game loop by rendering the current state of the game
                 // to the canvas.
                 render();
@@ -138,6 +154,40 @@
                 } else if (player2.y + player2.height > canvas.height) {
                     player2.y = canvas.height - player2.height;
                 }
+
+                // If the ball is currently waiting to start moving
+                // and the spacebar is currently pressed...
+                if (ball.waiting && spacePressed) {
+                    // Assign the ball a random velocity on both the x and y axis.
+                    ball.waiting = false;
+                    ball.xVelocity = randomNegation() * randomBetween(100, 150);
+                    ball.yVelocity = randomNegation() * randomBetween(0, 125);
+                }
+            }
+
+            // This function simulates the physics of the dynamic objects (ie the ball)
+            function updatePhysics() {
+
+                // Move the ball based on it's velocity (in pixels per second)
+                ball.x += (ball.xVelocity / 60);
+                ball.y += (ball.yVelocity / 60);
+
+                // Check to see if the ball has hit the bottom of the canvas
+                if (ball.y + ball.height >= 500) {
+                    // The ball needs to bounce upwards
+                    ball.y = 500 - ball.height;
+                    ball.yVelocity *= -1;
+                }
+            }
+
+            function updateScore() {
+                if (ball.x <= 0) {
+                    // The ball has reached the left side of the canvas.
+                    // Move the ball back into the center and make it wait
+                    ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
+                    // Increase player2's score.
+                    player2.score += 1;
+                }
             }
 
             // Renders the current state of the game to the canvas
@@ -153,6 +203,24 @@
                 ctx.fillStyle = 'white';
                 ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
                 ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+                ctx.fillRect(ball.x, ball.y, ball.width, ball.height);
+
+                // Render score
+                player2ScoreElement.innerHTML = player2.score.toString();
+            }
+
+            // Randomly return 1 or -1
+            function randomNegation() {
+                if (Math.random() >= 0.5) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+
+            // Random number between min and max
+            function randomBetween(min, max) {
+                return min + (Math.random() * (max - min));
             }
 
         </script>
