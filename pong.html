@@ -69,6 +69,7 @@
             window.onload = function() {
                 // Listen for keydown events
                 document.onkeydown = function (keyEvent) {
+                    keyEvent.preventDefault();
                     // If the key that went down was the 'w' key...
                     if (keyEvent.key === 'w') {
                         // Set the wPressed variable to true
@@ -87,6 +88,7 @@
                 }
                 // Listen for keyup events
                 document.onkeyup = function (keyEvent) {
+                    keyEvent.preventDefault();
                     // If the key that went up was the 'w' key...
                     if (keyEvent.key === 'w') {
                         // Set the wPressed variable back to false
