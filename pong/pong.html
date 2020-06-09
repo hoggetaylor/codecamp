@@ -35,7 +35,7 @@
     <body>
         <div class="title">
             <h1>PONG</h1>
-            <span class="score">0</span>
+            <span class="score" id="player1score">0</span>
             <span class="score" id="player2score">0</span>
         </div>
         <canvas width="900" height="500" id="gameCanvas"></canvas>
@@ -56,7 +56,7 @@
             let backgroundColor = 'black';
             // These objects hold the state of each player.
             // Notice that y is 225 because it equals (canvas.height / 2) - (player.height / 2)
-            let player1 = { x: 10, y: 225, width: 10, height: 50 };
+            let player1 = { x: 10, y: 225, width: 10, height: 50, score:0 };
             let player2 = { x: 880, y: 225, width: 10, height: 50, score: 0 };
             // This object holds the state of the ball.
             let ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
@@ -64,7 +64,7 @@
             let canvas = document.getElementById('gameCanvas');
             // This variable holds a reference to player2's score element in the dom.
             let player2ScoreElement = document.getElementById('player2score');
-
+            let player1ScoreElement = document.getElementById('player1score');
             // When the page loads...
             window.onload = function() {
                 // Listen for keydown events
@@ -179,19 +179,24 @@
                     // The ball needs to bounce upwards
                     ball.y = 500 - ball.height;
                     ball.yVelocity *= -1;
+                } if (ball.y <= 0){
+                    ball.y = 0 ;
+                    ball.yVelocity *= -1;
                 }
             }
 
             function updateScore() {
                 if (ball.x <= 0) {
-                    // The ball has reached the left side of the canvas.
+                    // The ball  has reached the left side of the canvas.
                     // Move the ball back into the center and make it wait
                     ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
                     // Increase player2's score.
                     player2.score += 1;
+                } if (ball.x >= 900) {
+                ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
+               player1.score += 1;
                 }
             }
-
             // Renders the current state of the game to the canvas
             function render() {
                 console.log('Rendering');
@@ -209,12 +214,13 @@
 
                 // Render score
                 player2ScoreElement.innerHTML = player2.score.toString();
-            }
+                player1ScoreElement.innerHTML = player1.score.toString();
+            }  
 
             // Randomly return 1 or -1
             function randomNegation() {
                 if (Math.random() >= 0.5) {
-                    return 1;
+                    return 1
                 } else {
                     return -1;
                 }
