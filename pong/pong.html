@@ -28,6 +28,8 @@
                 margin-right: auto;
                 display: block;
                 background-color: black;
+                display:line;
+                background-color: black;
             }
 
         </style>
@@ -52,7 +54,8 @@
             let downPressed = false;
             // If this variable is true, it means that the space bar is currently being pressed down.
             let spacePressed = false;
-            // This variable holds the current background color of the canvas.
+            let escapepresed = false;
+            // This varifaable holds the current background color of the canvas.
             let backgroundColor = 'black';
             // These objects hold the state of each player.
             // Notice that y is 225 because it equals (canvas.height / 2) - (player.height / 2)
@@ -84,8 +87,10 @@
                         downPressed = true;
                     } else if (keyEvent.key === ' ') {
                         spacePressed = true;
+                    } else if (keyEvent.key ==='Escape'){
+                        escapepresed = true
                     }
-                }
+                }     
                 // Listen for keyup events
                 document.onkeyup = function (keyEvent) {
                     keyEvent.preventDefault();
@@ -103,8 +108,12 @@
                         downPressed = false;
                     } else if (keyEvent.key === ' ') {
                         spacePressed = false;
+                    } else if (keyEvent.key === 'Escape') {
+                        escapepresed= false;
                     }
                 }
+                    
+                
 
                 // Start the game loop
                 // This asks the browser to call the update function
@@ -132,6 +141,11 @@
             // Modifies the game state based on the current user input
             function checkUserInput() {
                 console.log('Checking user input.');
+                if (escapepresed){
+                    ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
+                    player1.score = 0
+                    player2.score = 0
+                }
                 if (wPressed) {
                     // Move the player upwards
                     player1.y = player1.y - 5;
@@ -145,6 +159,7 @@
                 } else if (downPressed) {
                     player2.y = player2.y + 5;             
                      }
+                
                 // Ensure that the player stays within the canvas
                 if (player1.y < 0) {
                     player1.y = 0;
@@ -179,11 +194,12 @@
                     // The ball needs to bounce upwards
                     ball.y = 500 - ball.height;
                     ball.yVelocity *= -1;
-                } if (ball.y <= 0){
+                }      if (ball.y <= 0){
                     ball.y = 0 ;
                     ball.yVelocity *= -1;
-                }
-            }
+                }           
+                 }
+            
 
             function updateScore() {
                 if (ball.x <= 0) {
@@ -196,7 +212,7 @@
                 ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
                player1.score += 1;
                 }
-            }
+            } 
             // Renders the current state of the game to the canvas
             function render() {
                 console.log('Rendering');
