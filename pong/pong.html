@@ -31,7 +31,7 @@
                 display:line;
                 background-color: black;
             }
-
+            
         </style>
     </head>
     <body>
@@ -41,7 +41,7 @@
             <span class="score" id="player2score">0</span>
         </div>
         <canvas width="900" height="500" id="gameCanvas"></canvas>
-
+        <line width="10" height="500" id="line"></line>
         <script type="text/javascript">
 
             // If this variable is true, it means the user is currently pressing down the 'w' key.
@@ -65,11 +65,12 @@
             let ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
             // This variable holds a reference to the canvas that lives within the html document.
             let canvas = document.getElementById('gameCanvas');
+            let line = document.getElementById('line');
             // This variable holds a reference to player2's score element in the dom.
             let player2ScoreElement = document.getElementById('player2score');
             let player1ScoreElement = document.getElementById('player1score');
-            // When the page loads...
-            window.onload = function() {
+            // When the page loads...ne
+                        window.onload = function() {
                 // Listen for keydown events
                 document.onkeydown = function (keyEvent) {
                     keyEvent.preventDefault();
@@ -193,7 +194,7 @@
                     backgroundColor = 'blue';
                 }
 
-                // Move the ball based on it's velocity (in pixels per second)
+                // Move the ball .s on it's velocity (in pixels per second)
                 ball.x += (ball.xVelocity / 60);
                 ball.y += (ball.yVelocity / 60);
 
@@ -238,7 +239,12 @@
                 ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
                 ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
                 ctx.fillRect(ball.x, ball.y, ball.width, ball.height);
-
+                ctx.beginPath();       // Start a new path
+                ctx.moveTo(450, 500);    // Move the pen to (30, 50)
+                ctx.lineTo(450, 0);  // Draw a line to (150, 100)
+                ctx.lineWidth = 3
+                ctx.strokeStyle = "white"
+                ctx.stroke();          // Render the path
                 // Render score
                 player2ScoreElement.innerHTML = player2.score.toString();
                 player1ScoreElement.innerHTML = player1.score.toString();
