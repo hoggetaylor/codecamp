@@ -59,8 +59,8 @@
             let backgroundColor = 'black';
             // These objects hold the state of each player.
             // Notice that y is 225 because it equals (canvas.height / 2) - (player.height / 2)
-            let player1 = { x: 10, y: 225, width: 10, height: 50, score:0 };
-            let player2 = { x: 880, y: 225, width: 10, height: 50, score: 0 };
+            let player1 = { x: 10, y: 225, width: 10, height: 50, score:0, xVelocity: 0, yVelocity: 0 };
+            let player2 = { x: 880, y: 225, width: 10, height: 50, score: 0, xVelocity: 0, yVelocity: 0 };
             // This object holds the state of the ball.
             let ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
             // This variable holds a reference to the canvas that lives within the html document.
@@ -78,13 +78,17 @@
                     if (keyEvent.key === 'w') {
                         // Set the wPressed variable to true
                         wPressed = true;
+                        player1.yVelocity = -200;
                     // Else, if the key that went down was the 's' key...
                     } else if (keyEvent.key === 's') {
                         // Set the sPressed variable to true
                         sPressed = true;
+                        player1.yVelocity = 200;
                     } else if (keyEvent.key === 'ArrowUp') {
                         upPressed = true;
+                        player2.yVelocity = -200;
                     } else if (keyEvent.key === 'ArrowDown') {
+                        player2.yVelocity = 200;
                         downPressed = true;
                     } else if (keyEvent.key === ' ') {
                         spacePressed = true;
@@ -99,22 +103,24 @@
                     if (keyEvent.key === 'w') {
                         // Set the wPressed variable back to false
                         wPressed = false;
+                        player1.yVelocity = 0;
                     // Else, if the key that went up was the 's' key...
                     } else if (keyEvent.key === 's') {
                         // Set the sPressed variable back to false
+                        player1.yVelocity = 0;
                         sPressed = false;
                     } if (keyEvent.key === 'ArrowUp') {
                         upPressed = false;
+                        player2.yVelocity = 0;
                     } else if (keyEvent.key === 'ArrowDown') {
                         downPressed = false;
+                        player2.yVelocity = 0;
                     } else if (keyEvent.key === ' ') {
                         spacePressed = false;
                     } else if (keyEvent.key === 'Escape') {
                         escapepresed= false;
                     }
                 }
-                    
-                
 
                 // Start the game loop
                 // This asks the browser to call the update function
@@ -147,32 +153,7 @@
                     player1.score = 0
                     player2.score = 0
                 }
-                if (wPressed) {
-                    // Move the player upwards
-                    player1.y = player1.y - 5;
-                } else if (sPressed) {
-                    // Move the player downwards
-                    player1.y = player1.y + 5
-                        
-                }
-                if (upPressed){
-                    player2.y = player2.y - 5;
-                } else if (downPressed) {
-                    player2.y = player2.y + 5;             
-                     }
                 
-                // Ensure that the player stays within the canvas
-                if (player1.y < 0) {
-                    player1.y = 0;
-                } else if (player1.y + player1.height > canvas.height) {
-                    player1.y = canvas.height - player1.height;
-                } if (player2.y <0) {
-                    player2.y =  0;
-                       
-                } else if (player2.y + player2.height > canvas.height) {
-                    player2.y = canvas.height - player2.height;
-                }
-
                 // If the ball is currently waiting to start moving
                 // and the spacebar is currently pressed...
                 if (ball.waiting && spacePressed) {
@@ -186,12 +167,24 @@
             // This function simulates the physics of the dynamic objects (ie the ball)
             function updatePhysics() {
 
-                if (overlaps(player1, ball)) {
-                    backgroundColor = 'red';
+                bounce(player1, ball);
+                bounce(player2, ball);
+
+                // Move the player's by their velocity
+                player1.x += (player1.xVelocity / 60);
+                player1.y += (player1.yVelocity / 60);
+                if (player1.y < 0) {
+                    player1.y = 0;
+                } else if (player1.y + player1.height > canvas.height) {
+                    player1.y = canvas.height - player1.height;
                 }
 
-                if (overlaps(player2, ball)) {
-                    backgroundColor = 'blue';
+                player2.x += (player2.xVelocity / 60);
+                player2.y += (player2.yVelocity / 60);
+                if (player2.y <0) {
+                    player2.y =  0;
+                } else if (player2.y + player2.height > canvas.height) {
+                    player2.y = canvas.height - player2.height;
                 }
 
                 // Move the ball .s on it's velocity (in pixels per second)
@@ -264,8 +257,22 @@
                 return min + (Math.random() * (max - min));
             }
 
-            function overlaps(rect1, rect2) {
-                return overlapsOnXAxis(rect1, rect2) && overlapsOnYAxis(rect1, rect2);
+            function bounce(player, ball) {
+                const xOverlap = overlapsOnXAxis(player, ball);
+                const yOverlap = overlapsOnYAxis(player, ball);
+                if (xOverlap > 0 && yOverlap > 0) {
+                    // player and ball are intersecting
+                    if (xOverlap <= yOverlap) {
+                        // bounce on the x axis
+                        ball.yVelocity = (ball.yVelocity + player.yVelocity) / 2;
+                        ball.xVelocity = ball.xVelocity * -1;
+                        ball.x += xOverlap;
+                    } else {
+                        // bounce on the y axis
+                        ball.yVelocity = ball.yVelocity * -1;
+                        ball.yVelocity += yOverlap;
+                    }
+                }
             }
 
             function overlapsOnXAxis(rect1, rect2) {
@@ -284,10 +291,12 @@
                 return overlapsOnNumberLine(start1, end1, start2, end2);
             }
 
+            // Returns a positive number if there is an overlap
+            // Negative number if there is no overlap
             function overlapsOnNumberLine(start1, end1, start2, end2) {
                 let maxStart = Math.max(start1, start2);
                 let minEnd = Math.min(end1, end2);
-                return maxStart < minEnd;
+                return minEnd - maxStart;
             }
 
         </script>
