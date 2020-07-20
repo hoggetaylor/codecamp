@@ -14,11 +14,8 @@
                 text-align: center;
             }
 
-            .score {
-                font-size: 24px;
-                font-weight: bold;
-                padding: 20px;
-            }
+            
+            
 
             canvas {
                 margin-top: 50px;
@@ -37,8 +34,7 @@
     <body>
         <div class="title">
             <h1>PONG</h1>
-            <span class="score" id="player1score">0</span>
-            <span class="score" id="player2score">0</span>
+           
         </div>
         <canvas width="900" height="500" id="gameCanvas"></canvas>
         <line width="10" height="500" id="line"></line>
@@ -66,9 +62,7 @@
             // This variable holds a reference to the canvas that lives within the html document.
             let canvas = document.getElementById('gameCanvas');
             let line = document.getElementById('line');
-            // This variable holds a reference to player2's score element in the dom.
-            let player2ScoreElement = document.getElementById('player2score');
-            let player1ScoreElement = document.getElementById('player1score');
+          
             // When the page loads...ne
                         window.onload = function() {
                 // Listen for keydown events
@@ -239,8 +233,10 @@
                 ctx.strokeStyle = "white"
                 ctx.stroke();          // Render the path
                 // Render score
-                player2ScoreElement.innerHTML = player2.score.toString();
-                player1ScoreElement.innerHTML = player1.score.toString();
+                const mid=canvas.width/2
+                ctx.font="32px sans-serif"
+                ctx.fillText( player2.score.toString(),mid + mid /2,28);
+                ctx.fillText(player1.score.toString(),mid - mid/2,28);
             }  
 
             // Randomly return 1 or -1
