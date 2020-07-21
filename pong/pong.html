@@ -9,37 +9,25 @@
                 width: 100%;
             }
 
-            .title {
-                margin-top: 50px;
-                text-align: center;
-            }
-
-            
-            
-
             canvas {
-                margin-top: 50px;
                 padding-left: 0;
                 padding-right: 0;
                 margin-left: auto;
                 margin-right: auto;
                 display: block;
                 background-color: black;
-                display:line;
-                background-color: black;
             }
             
         </style>
     </head>
     <body>
-        <div class="title">
-            <h1>PONG</h1>
-           
-        </div>
-        <canvas width="900" height="500" id="gameCanvas"></canvas>
-        <line width="10" height="500" id="line"></line>
+        <canvas id="gameCanvas"></canvas>
         <script type="text/javascript">
 
+            // This variable holds a reference to the canvas that lives within the html document.
+            let canvas = document.getElementById('gameCanvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
             // If this variable is true, it means the user is currently pressing down the 'w' key.
             let wPressed = false;
             // If this variable is true, it means that the user is currently pressing down the 's' key.
@@ -55,16 +43,13 @@
             let backgroundColor = 'black';
             // These objects hold the state of each player.
             // Notice that y is 225 because it equals (canvas.height / 2) - (player.height / 2)
-            let player1 = { x: 10, y: 225, width: 10, height: 50, score:0, xVelocity: 0, yVelocity: 0 };
-            let player2 = { x: 880, y: 225, width: 10, height: 50, score: 0, xVelocity: 0, yVelocity: 0 };
+            let player1 = { x: 10, y: canvas.height / 2 - 25, width: 10, height: 50, score:0, xVelocity: 0, yVelocity: 0 };
+            let player2 = { x: canvas.width - 20, y: canvas.height / 2 - 25, width: 10, height: 50, score: 0, xVelocity: 0, yVelocity: 0 };
             // This object holds the state of the ball.
-            let ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
-            // This variable holds a reference to the canvas that lives within the html document.
-            let canvas = document.getElementById('gameCanvas');
-            let line = document.getElementById('line');
-          
+            let ball = { x: canvas.width / 2 - 5, y: canvas.height / 2 - 5, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
+            
             // When the page loads...ne
-                        window.onload = function() {
+            window.onload = function() {
                 // Listen for keydown events
                 document.onkeydown = function (keyEvent) {
                     keyEvent.preventDefault();
@@ -125,6 +110,8 @@
             // Runs one iteration of the game loop
             function update() {
                 console.log('Game loop is executing.');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
                 // We start the game loop by modifying the current game state
                 // based on the current input from the user
                 checkUserInput();
@@ -143,7 +130,7 @@
             function checkUserInput() {
                 console.log('Checking user input.');
                 if (escapepresed){
-                    ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
+                    ball = { x: canvas.width / 2 - 5, y: canvas.height / 2 - 5, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
                     player1.score = 0
                     player2.score = 0
                 }
@@ -186,9 +173,9 @@
                 ball.y += (ball.yVelocity / 60);
 
                 // Check to see if the ball has hit the bottom of the canvas
-                if (ball.y + ball.height >= 500) {
+                if (ball.y + ball.height >= canvas.height) {
                     // The ball needs to bounce upwards
-                    ball.y = 500 - ball.height;
+                    ball.y = canvas.height - ball.height;
                     ball.yVelocity *= -1;
                 }
 
@@ -203,11 +190,11 @@
                 if (ball.x <= 0) {
                     // The ball  has reached the left side of the canvas.
                     // Move the ball back into the center and make it wait
-                    ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
+                    ball = { x: canvas.width / 2 - 5, y: canvas.height / 2 - 5, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
                     // Increase player2's score.
                     player2.score += 1;
-                } if (ball.x >= 900) {
-                    ball = { x: 445, y: 245, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
+                } if (ball.x >= canvas.width) {
+                    ball = { x: canvas.width / 2 - 5, y: canvas.height / 2 - 5, width: 10, height: 10, waiting: true, xVelocity: 0, yVelocity: 0 };
                     player1.score += 1;
                 }
             } 
@@ -227,9 +214,9 @@
                 ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
                 ctx.fillRect(ball.x, ball.y, ball.width, ball.height);
                 ctx.beginPath();       // Start a new path
-                ctx.moveTo(450, 500);    // Move the pen to (30, 50)
-                ctx.lineTo(450, 0);  // Draw a line to (150, 100)
-                ctx.lineWidth = 3
+                ctx.moveTo(canvas.width / 2, canvas.height);    // Move the pen to (30, 50)
+                ctx.lineTo(canvas.width / 2, 0);  // Draw a line to (150, 100)
+                ctx.lineWidth = 4
                 ctx.strokeStyle = "white"
                 ctx.stroke();          // Render the path
                 // Render score
