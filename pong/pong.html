@@ -39,6 +39,9 @@
             // If this variable is true, it means that the space bar is currently being pressed down.
             let spacePressed = false;
             let escapepresed = false;
+            let lastplayer = null;
+            let powerups = []
+            let waittime = 10;
             // This varifaable holds the current background color of the canvas.
             let backgroundColor = 'black';
             // These objects hold the state of each player.
@@ -73,6 +76,8 @@
                         spacePressed = true;
                     } else if (keyEvent.key ==='Escape'){
                         escapepresed = true
+                    } else if (keyEvent.key ==='a') {
+                        aPressed = true
                     }
                 }     
                 // Listen for keyup events
@@ -98,6 +103,8 @@
                         spacePressed = false;
                     } else if (keyEvent.key === 'Escape') {
                         escapepresed= false;
+                    } else if (keyEvent. key === 'a') {
+                        aPressed = false
                     }
                 }
 
@@ -115,6 +122,7 @@
                 // We start the game loop by modifying the current game state
                 // based on the current input from the user
                 checkUserInput();
+                spawnpowerup();
                 // After responding to user input, we update the physics by
                 // moving any objects by their velocity and checking for collisions.
                 updatePhysics();
@@ -124,6 +132,20 @@
                 // We end the game loop by rendering the current state of the game
                 // to the canvas.
                 render();
+            }
+            function spawnpowerup() {
+                console.log('spawn powerup');
+                waittime -= 16/1000
+                if (waittime <= 0 ) {
+                    waittime = randomBetween (10,30)
+                    powerups.push({
+                        x:randomBetween (50,canvas.width-50),
+                        y:randomBetween (50, canvas.height-50),
+                        width:randomBetween (20,30),
+                        height:randomBetween (20,30),
+                        poweruptype: "ink"
+                    })
+                }
             }
 
             // Modifies the game state based on the current user input
@@ -207,6 +229,10 @@
                 // Draw the background
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'red';
+                for (const powerup of powerups){
+                    ctx.fillRect(powerup.x, powerup.y, powerup.width, powerup.height)
+                }
 
                 // Render player1
                 ctx.fillStyle = 'white';
@@ -244,6 +270,7 @@
                 const xOverlap = overlapsOnXAxis(player, ball);
                 const yOverlap = overlapsOnYAxis(player, ball);
                 if (xOverlap > 0 && yOverlap > 0) {
+                   lastplayer = player
                     // player and ball are intersecting
                     if (xOverlap <= yOverlap) {
                         // bounce on the x axis
