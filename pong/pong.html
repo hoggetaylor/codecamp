@@ -42,6 +42,7 @@
             let lastplayer = null;
             let powerups = []
             let waittime = 10;
+            let effects = []
             // This varifaable holds the current background color of the canvas.
             let backgroundColor = 'black';
             // These objects hold the state of each player.
@@ -133,18 +134,24 @@
                 // to the canvas.
                 render();
             }
+
+            
+
             function spawnpowerup() {
                 console.log('spawn powerup');
                 waittime -= 16/1000
                 if (waittime <= 0 ) {
-                    waittime = randomBetween (10,30)
-                    powerups.push({
-                        x:randomBetween (50,canvas.width-50),
-                        y:randomBetween (50, canvas.height-50),
-                        width:randomBetween (20,30),
-                        height:randomBetween (20,30),
-                        poweruptype: "ink"
-                    })
+                    waittime = randomBetween (30,60)
+                    if (powerups.length < 5){
+                        powerups.push({
+                            x:randomBetween (50,canvas.width-50),
+                            y:randomBetween (50, canvas.height-50),
+                            width:randomBetween (20,30),
+                            height:randomBetween (20,30),
+                            poweruptype: "ink"
+                        
+                        })
+                    }
                 }
             }
 
@@ -172,6 +179,24 @@
 
                 bounce(player1, ball);
                 bounce(player2, ball);
+                const powerupstoremove = new Set()
+                for(const powerup of powerups){
+                    const xOverlap = overlapsOnXAxis(powerup,ball)
+                    const yOverlap = overlapsOnYAxis(powerup,ball)
+                    if(xOverlap>0 && yOverlap>0){
+                        powerupstoremove.add(powerup)
+                        if(powerup.poweruptype === "ink"){
+                            effects.push({
+                                player:otherplayer(lastplayer),
+                                effecttype:"ink",
+                                lifetime: 10
+                            })
+
+                        }
+                    }
+
+                }
+                powerups = powerups.filter((powerup)=>!powerupstoremove.has(powerup))
 
                 // Move the player's by their velocity
                 player1.x += (player1.xVelocity / 60);
@@ -206,8 +231,27 @@
                     ball.yVelocity *= -1;
                 }           
             }
+           function updateEffects(){
+               const effectstoremove = new Set()
+               for(const effect of effects){
+                effect.lifetime -= 16/1000
+                if(effect.lifetime <= 0) {
+                    effectstoremove.add(effect)
+                }
+               } 
+               effects=effects.filter((effect)=>!effectstoremove.has(effect))
+                   
+               
+           }
             
-
+            function otherplayer(player){
+                if (player === player1){
+                    return player2 
+                    
+                } else {
+                    return player1
+                }
+            }
             function updateScore() {
                 if (ball.x <= 0) {
                     // The ball  has reached the left side of the canvas.
@@ -236,8 +280,13 @@
 
                 // Render player1
                 ctx.fillStyle = 'white';
+                if(!effects.some((effect)=>effect.player===player1&&effect.effecttype==="ink")){
                 ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+
+                }
+                if(!effects.some((effect)=>effect.player===player2&&effect.effecttype==="ink")){
                 ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+                }
                 ctx.fillRect(ball.x, ball.y, ball.width, ball.height);
                 ctx.beginPath();       // Start a new path
                 ctx.moveTo(canvas.width / 2, canvas.height);    // Move the pen to (30, 50)
