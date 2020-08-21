@@ -124,6 +124,7 @@
                 // based on the current input from the user
                 checkUserInput();
                 spawnpowerup();
+                updateEffects();
                 // After responding to user input, we update the physics by
                 // moving any objects by their velocity and checking for collisions.
                 updatePhysics();
@@ -233,9 +234,11 @@
             }
            function updateEffects(){
                const effectstoremove = new Set()
+               console.log('curent efects',effects.length)
                for(const effect of effects){
                 effect.lifetime -= 16/1000
-                if(effect.lifetime <= 0) {
+                console.log('effect lifetime',effect.lifetime )           
+                  if(effect.lifetime <= 0) {
                     effectstoremove.add(effect)
                 }
                } 
