@@ -61,17 +61,17 @@
                     if (keyEvent.key === 'w') {
                         // Set the wPressed variable to true
                         wPressed = true;
-                        player1.yVelocity = -200;
+                        player1.yVelocity = -400;
                     // Else, if the key that went down was the 's' key...
                     } else if (keyEvent.key === 's') {
                         // Set the sPressed variable to true
                         sPressed = true;
-                        player1.yVelocity = 200;
+                        player1.yVelocity = 400;
                     } else if (keyEvent.key === 'ArrowUp') {
                         upPressed = true;
-                        player2.yVelocity = -200;
+                        player2.yVelocity = -400;
                     } else if (keyEvent.key === 'ArrowDown') {
-                        player2.yVelocity = 200;
+                        player2.yVelocity = 400;
                         downPressed = true;
                     } else if (keyEvent.key === ' ') {
                         spacePressed = true;
@@ -178,61 +178,93 @@
             // This function simulates the physics of the dynamic objects (ie the ball)
             function updatePhysics() {
 
-                bounce(player1, ball);
-                bounce(player2, ball);
-                const powerupstoremove = new Set()
-                for(const powerup of powerups){
-                    const xOverlap = overlapsOnXAxis(powerup,ball)
-                    const yOverlap = overlapsOnYAxis(powerup,ball)
-                    if(xOverlap>0 && yOverlap>0){
-                        powerupstoremove.add(powerup)
-                        if(powerup.poweruptype === "ink"){
-                            effects.push({
-                                player:otherplayer(lastplayer),
-                                effecttype:"ink",
-                                lifetime: 10
-                            })
+                const delta = 1.0;
+                const player1xDeltas = interpolate(player1.xVelocity / 60, delta);
+                const player1yDeltas = interpolate(player1.yVelocity / 60, delta);
+                const player2xDeltas = interpolate(player2.xVelocity / 60, delta);
+                const player2yDeltas = interpolate(player2.yVelocity / 60, delta);
+                const ballxDeltas = interpolate(ball.xVelocity / 60, delta);
+                const ballyDeltas = interpolate(ball.yVelocity / 60, delta);
+                const deltas = [player1xDeltas, player1yDeltas, player2xDeltas, player2yDeltas, ballxDeltas, ballyDeltas];
+                const maxLength = Math.max(...deltas.map(a => a.length));
+                console.log('Updating physics with num deltas:', maxLength);
+                let stop = false;
+                for (let i = 0; i < maxLength; i++) {
 
+                    if (stop) { break; }
+
+                    player1.x += player1xDeltas[i] ?? 0;
+                    player1.y += player1yDeltas[i] ?? 0;
+                    player2.x += player2xDeltas[i] ?? 0;
+                    player2.y += player2yDeltas[i] ?? 0;
+                    ball.x += ballxDeltas[i] ?? 0;
+                    ball.y += ballyDeltas[i] ?? 0;
+
+                    // Checking if the ball needs to bounce off either player
+                    stop = bounce(player1, ball);
+                    stop = bounce(player2, ball);
+
+                    // Check if any powerups intersect with the ball
+                    const powerupstoremove = new Set()
+                    for(const powerup of powerups){
+                        const xOverlap = overlapsOnXAxis(powerup,ball)
+                        const yOverlap = overlapsOnYAxis(powerup,ball)
+                        if(xOverlap>0 && yOverlap>0){
+                            stop = true;
+                            powerupstoremove.add(powerup)
+                            if(powerup.poweruptype === "ink"){
+                                effects.push({
+                                    player:otherplayer(lastplayer),
+                                    effecttype:"ink",
+                                    lifetime: 10
+                                })
+                            }
                         }
                     }
+                    powerups = powerups.filter((powerup)=>!powerupstoremove.has(powerup))
 
+                    // Keep player1 inside the canvas
+                    if (player1.y < 0) {
+                        stop = true;
+                        player1.y = 0;
+                    } else if (player1.y + player1.height > canvas.height) {
+                        stop = true;
+                        player1.y = canvas.height - player1.height;
+                    }
+
+                    // Keep player2 inside the canvas
+                    if (player2.y <0) {
+                        stop = true;
+                        player2.y =  0;
+                    } else if (player2.y + player2.height > canvas.height) {
+                        stop = true;
+                        player2.y = canvas.height - player2.height;
+                    }
+
+                    // Check to see if the ball has hit the edges of the canvas
+                    if (ball.y + ball.height >= canvas.height) {
+                        stop = true;
+                        ball.y = canvas.height - ball.height;
+                        ball.yVelocity *= -1.0;
+                    } else if (ball.y <= 0){
+                        stop = true;
+                        ball.y = 0 ;
+                        ball.yVelocity *= -1.0;
+                    }
                 }
-                powerups = powerups.filter((powerup)=>!powerupstoremove.has(powerup))
-
-                // Move the player's by their velocity
-                player1.x += (player1.xVelocity / 60);
-                player1.y += (player1.yVelocity / 60);
-                if (player1.y < 0) {
-                    player1.y = 0;
-                } else if (player1.y + player1.height > canvas.height) {
-                    player1.y = canvas.height - player1.height;
-                }
-
-                player2.x += (player2.xVelocity / 60);
-                player2.y += (player2.yVelocity / 60);
-                if (player2.y <0) {
-                    player2.y =  0;
-                } else if (player2.y + player2.height > canvas.height) {
-                    player2.y = canvas.height - player2.height;
-                }
-
-                // Move the ball .s on it's velocity (in pixels per second)
-                ball.x += (ball.xVelocity / 60);
-                ball.y += (ball.yVelocity / 60);
-
-                // Check to see if the ball has hit the bottom of the canvas
-                if (ball.y + ball.height >= canvas.height) {
-                    // The ball needs to bounce upwards
-                    ball.y = canvas.height - ball.height;
-                    ball.yVelocity *= -1;
-                }
-
-                if (ball.y <= 0){
-                    ball.y = 0 ;
-                    ball.yVelocity *= -1;
-                }           
             }
-           function updateEffects(){
+
+            function interpolate(x, window) {
+                const interpolated = [];
+                while (x > window) {
+                    x -= window;
+                    interpolated.push(window);
+                }
+                interpolated.push(x);
+                return interpolated;
+            }
+
+            function updateEffects(){
                const effectstoremove = new Set()
                console.log('curent efects',effects.length)
                for(const effect of effects){
@@ -243,9 +275,7 @@
                 }
                } 
                effects=effects.filter((effect)=>!effectstoremove.has(effect))
-                   
-               
-           }
+            }
             
             function otherplayer(player){
                 if (player === player1){
@@ -327,14 +357,16 @@
                     if (xOverlap <= yOverlap) {
                         // bounce on the x axis
                         ball.yVelocity = (ball.yVelocity + player.yVelocity) / 2;
-                        ball.xVelocity = ball.xVelocity * -1;
+                        ball.xVelocity = ball.xVelocity * -1.5;
                         ball.x += xOverlap;
                     } else {
                         // bounce on the y axis
-                        ball.yVelocity = ball.yVelocity * -1;
+                        ball.yVelocity = ball.yVelocity * -1.5;
                         ball.yVelocity += yOverlap;
                     }
+                    return true;
                 }
+                return false;
             }
 
             function overlapsOnXAxis(rect1, rect2) {
