@@ -142,14 +142,19 @@
                 console.log('spawn powerup');
                 waittime -= 16/1000
                 if (waittime <= 0 ) {
-                    waittime = randomBetween (30,60)
+                    waittime = randomBetween (5,10)
                     if (powerups.length < 5){
+                    let choice = "ink"
+                    if (Math.random() <0.5) {
+                        choice = "grow"
+                    }
                         powerups.push({
                             x:randomBetween (50,canvas.width-50),
                             y:randomBetween (50, canvas.height-50),
-                            width:randomBetween (20,30),
+                            width:randomBetween ( 20,30),
                             height:randomBetween (20,30),
-                            poweruptype: "ink"
+                            poweruptype: choice
+                            
                         
                         })
                     }
@@ -218,6 +223,13 @@
                                     effecttype:"ink",
                                     lifetime: 10
                                 })
+                            } 
+                            else if (powerup.poweruptype === "grow"){
+                                effects.push({
+                                    player:(lastplayer),
+                                    effecttype: "grow",
+                                    lifetime: 10
+                                })
                             }
                         }
                     }
@@ -266,6 +278,8 @@
 
             function updateEffects(){
                const effectstoremove = new Set()
+               let player1height = 50 
+               let player2height = 50
                console.log('curent efects',effects.length)
                for(const effect of effects){
                 effect.lifetime -= 16/1000
@@ -273,8 +287,18 @@
                   if(effect.lifetime <= 0) {
                     effectstoremove.add(effect)
                 }
+                else if(effect.effecttype === "grow"){
+                    if (effect.player === player1){
+                        player1height = 100
+                    }
+                    else if ( effect.player === player2){
+                        player2height = 100
+                    }
+                } 
                } 
                effects=effects.filter((effect)=>!effectstoremove.has(effect))
+               player1.height = player1height
+               player2.height = player2height
             }
             
             function otherplayer(player){
@@ -306,8 +330,13 @@
                 // Draw the background
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = 'red';
                 for (const powerup of powerups){
+                    if(powerup.poweruptype === "grow"){
+                        ctx.fillStyle = 'green'
+                    }
+                    else {
+                    ctx.fillStyle = 'red';
+                    }
                     ctx.fillRect(powerup.x, powerup.y, powerup.width, powerup.height)
                 }
 
