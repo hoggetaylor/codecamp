@@ -145,9 +145,15 @@
                     waittime = randomBetween (5,10)
                     if (powerups.length < 5){
                     let choice = "ink"
-                    if (Math.random() <0.5) {
-                        choice = "grow"
-                    }
+                    const random = Math.random()
+                        if (random < 0.33) {
+                            choice = 'grow'
+                        }
+                        else if (random < 0.66) {
+                            choice = 'shrink'
+                        }
+                        
+                    
                         powerups.push({
                             x:randomBetween (50,canvas.width-50),
                             y:randomBetween (50, canvas.height-50),
@@ -231,6 +237,14 @@
                                     lifetime: 10
                                 })
                             }
+                            else if (powerup.poweruptype === "shrink"){
+                                effects.push({
+                                    player:otherplayer(lastplayer),
+                                    effecttype: "shrink",
+                                    lifetime: 10
+                                    
+                                })
+                            }
                         }
                     }
                     powerups = powerups.filter((powerup)=>!powerupstoremove.has(powerup))
@@ -293,8 +307,17 @@
                     }
                     else if ( effect.player === player2){
                         player2height = 100
-                    }
+                        
+                    }  
                 } 
+                else if (effect.effecttype === "shrink"){
+                    if (effect.player === player1){
+                        player1height = 30
+                    }
+                    else if (effect.player === player2){
+                        player2height = 30
+                    }
+                }
                } 
                effects=effects.filter((effect)=>!effectstoremove.has(effect))
                player1.height = player1height
@@ -334,8 +357,11 @@
                     if(powerup.poweruptype === "grow"){
                         ctx.fillStyle = 'green'
                     }
+                    else if (powerup.poweruptype === "ink"){
+                    ctx.fillStyle = 'red'
+                    }
                     else {
-                    ctx.fillStyle = 'red';
+                        ctx.fillStyle = 'blue'
                     }
                     ctx.fillRect(powerup.x, powerup.y, powerup.width, powerup.height)
                 }
