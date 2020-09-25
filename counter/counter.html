@@ -8,9 +8,19 @@
         <p id="number">0</p>
         <script type="text/javascript">
 
-            function addOne() {
-                // Add code here!
-                // This function should increment the number on the page.
+            function addOne() { 
+               const checknumber = document.getElementById("number")
+               const number = checknumber.innerText
+               let added = Number(number) +1
+               if (added > 10 ) {
+                  added = 0
+               }
+                checknumber.innerText = added 
+            
+
+                //Get the value of the curent number 
+                // add one to current value
+                //disply current value 
             }
 
         </script>
