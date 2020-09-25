@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Asteroids!</title>
+    </head>
+    <body>
+        <canvas width="800" height="800" id="canvas" style="margin: auto; display: block; margin-top: 50px"></canvas>
+
+        <script type="text/javascript">
+
+            const PLAYER_WIDTH = 15;
+            const PLAYER_HEIGHT = 20;
+            const DT = 16.0 / 1000.0;
+
+            const canvas = document.getElementById('canvas');
+            const player = makePlayer();
+
+            setInterval(update, 16);
+
+            function update() {
+                console.log('Update!');
+                updatePhysics();
+                render();
+            }
+
+            function updatePhysics() {
+                player.xVelocity += player.xAcceleration * DT;
+                player.yVelocity += player.yAcceleration * DT;
+                player.x += player.xVelocity * DT;
+                player.y += player.yVelocity * DT;
+            }
+
+            function render() {
+                const ctx = canvas.getContext('2d')
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const triangle = new Path2D();
+                triangle.moveTo(player.width / 2, 0);
+                triangle.lineTo(0, player.height);
+                triangle.lineTo(player.width, player.height);
+                triangle.closePath();
+                const rotatedTriangle= new Path2D();
+                const rotation = new DOMMatrix([
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+                ]);
+                rotation.translateSelf(player.x, player.y);
+                rotatedTriangle.addPath(triangle, rotation);
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke(rotatedTriangle);
+            }
+
+            function makePlayer() {
+                return {
+                    width: PLAYER_WIDTH,
+                    height: PLAYER_HEIGHT,
+                    x: (canvas.width / 2) - (PLAYER_WIDTH / 2),
+                    y: (canvas.height / 2) - (PLAYER_HEIGHT / 2),
+                    xAcceleration: -1,
+                    yAcceleration: 2,
+                    xVelocity: 0,
+                    yVelocity: 0,
+                    rotation: 0
+                };
+            }
+
+        </script>
+    </body>
+</html>
