@@ -10,8 +10,14 @@
 
             // Monitor which keys are currently pressed.
             const pressedKeys = new Set();
-            document.onkeydown = (e) => pressedKeys.add(e.key);
-            document.onkeyup = (e) => pressedKeys.delete(e.key);
+            document.onkeydown = (e) => {
+                e.preventDefault (); 
+                pressedKeys.add(e.key);
+            }
+            document.onkeyup = (e) =>  {
+                e.preventDefault (); 
+                pressedKeys.delete(e.key);
+                }
 
             const PLAYER_WIDTH = 15;
             const PLAYER_HEIGHT = 20;
@@ -37,8 +43,17 @@
                 if (pressedKeys.has('ArrowRight') || pressedKeys.has('d')) {
                     player.rotation += rotationDelta;
                 }
-            }
+                if (pressedKeys.has('ArrowUp') || pressedKeys.has('w') )   {
+                    player.yAcceleration = Math.cos (player.rotation) *-50
+                    player.xAcceleration = Math.sin (player.rotation) *-50
+                
+                }
+                else {
+                   player.yAcceleration = 0 
+                   player.xAcceleration = 0
+                }
 
+                }
             function updatePhysics() {
                 enactMotion(player);
             }
