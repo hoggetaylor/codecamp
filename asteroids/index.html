@@ -42,18 +42,20 @@
                 }
                 if (pressedKeys.has('ArrowRight') || pressedKeys.has('d')) {
                     player.rotation += rotationDelta;
-                }
-                if (pressedKeys.has('ArrowUp') || pressedKeys.has('w') )   {
-                    player.yAcceleration = Math.cos (player.rotation) *-50
-                    player.xAcceleration = Math.sin (player.rotation) *-50
-                
-                }
-                else {
+                } 
+                if (player.rotation > 360) { player.rotation = player.rotation % 360; }
+                if (player.rotation < 0) { player.rotation = 360 - player.rotation; }
+                console.log('rotation is currently', player.rotation);
+                if (pressedKeys.has('ArrowUp') || pressedKeys.has('w')) {
+                    player.yAcceleration = Math.cos (player.rotation) * -50;
+                    player.xAcceleration = Math.sin (player.rotation) * 50;
+                    console.log('acceleration', player.xAcceleration, player.yAcceleration);
+                } else {
                    player.yAcceleration = 0 
                    player.xAcceleration = 0
                 }
+            }
 
-                }
             function updatePhysics() {
                 enactMotion(player);
             }
