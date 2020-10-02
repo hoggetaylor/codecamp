@@ -8,8 +8,14 @@
 
         <script type="text/javascript">
 
+            // Monitor which keys are currently pressed.
+            const pressedKeys = new Set();
+            document.onkeydown = (e) => pressedKeys.add(e.key);
+            document.onkeyup = (e) => pressedKeys.delete(e.key);
+
             const PLAYER_WIDTH = 15;
             const PLAYER_HEIGHT = 20;
+            const PLAYER_ROTATION_DEGREES_PER_SECOND = 180;
             const DT = 16.0 / 1000.0;
 
             const canvas = document.getElementById('canvas');
@@ -18,16 +24,30 @@
             setInterval(update, 16);
 
             function update() {
-                console.log('Update!');
+                updateUserInput();
                 updatePhysics();
                 render();
             }
 
+            function updateUserInput() {
+                const rotationDelta = PLAYER_ROTATION_DEGREES_PER_SECOND * DT;
+                if (pressedKeys.has('ArrowLeft') || pressedKeys.has('a')) {
+                    player.rotation -= rotationDelta;
+                }
+                if (pressedKeys.has('ArrowRight') || pressedKeys.has('d')) {
+                    player.rotation += rotationDelta;
+                }
+            }
+
             function updatePhysics() {
-                player.xVelocity += player.xAcceleration * DT;
-                player.yVelocity += player.yAcceleration * DT;
-                player.x += player.xVelocity * DT;
-                player.y += player.yVelocity * DT;
+                enactMotion(player);
+            }
+
+            function enactMotion(entity) {
+                entity.xVelocity += entity.xAcceleration * DT;
+                entity.yVelocity += entity.yAcceleration * DT;
+                entity.x += entity.xVelocity * DT;
+                entity.y += entity.yVelocity * DT;
             }
 
             function render() {
@@ -48,6 +68,7 @@
                     0, 0, 0, 1
                 ]);
                 rotation.translateSelf(player.x, player.y);
+                rotation.rotateSelf(player.rotation);
                 rotatedTriangle.addPath(triangle, rotation);
                 ctx.strokeStyle = 'white';
                 ctx.lineWidth = 2;
@@ -60,8 +81,8 @@
                     height: PLAYER_HEIGHT,
                     x: (canvas.width / 2) - (PLAYER_WIDTH / 2),
                     y: (canvas.height / 2) - (PLAYER_HEIGHT / 2),
-                    xAcceleration: -1,
-                    yAcceleration: 2,
+                    xAcceleration: 0,
+                    yAcceleration: 0,
                     xVelocity: 0,
                     yVelocity: 0,
                     rotation: 0
