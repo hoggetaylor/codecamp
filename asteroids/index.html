@@ -23,10 +23,13 @@
             const PLAYER_HEIGHT = 20;
             const PLAYER_ROTATION_DEGREES_PER_SECOND = 180;
             const PLAYER_ACCELERATION = 100;
+            const PLAYER_MAXVELOCITY = 100
             const DT = 16.0 / 1000.0;
 
             const canvas = document.getElementById('canvas');
             const player = makePlayer();
+            const asteroids = []
+            makeAsteroid ()
 
             setInterval(update, 16);
 
@@ -56,12 +59,27 @@
             }
 
             function updatePhysics() {
-                enactMotion(player);
+                enactMotion(player,PLAYER_MAXVELOCITY)
+
+                if (player.x < 0) {
+                     player.x = canvas.width
+                }
+                if (player.y < 0){
+                    player.y = canvas.height
+                }
+                if (player.x > canvas.width) {
+                    player.x = 0
+                }
+                if (player.y > canvas.height) {
+                    player.y = 0
+                }
             }
 
-            function enactMotion(entity) {
+            function enactMotion(entity,maxvelocity) {
                 entity.xVelocity += entity.xAcceleration * DT;
                 entity.yVelocity += entity.yAcceleration * DT;
+                entity.xVelocity = Math.min(entity.xVelocity,maxvelocity)
+                entity.yVelocity = Math.min(entity.yVelocity,maxvelocity)
                 entity.x += entity.xVelocity * DT;
                 entity.y += entity.yVelocity * DT;
             }
@@ -89,6 +107,11 @@
                 ctx.strokeStyle = 'white';
                 ctx.lineWidth = 2;
                 ctx.stroke(rotatedTriangle);
+                for(const asteroid of asteroids) {
+                    ctx.beginPath()
+                    ctx.arc(asteroid.x, asteroid.y, asteroid.radius, 0,Math.PI*2)
+                    ctx.stroke()
+                }
             }
 
             function makePlayer() {
@@ -104,7 +127,16 @@
                     rotation: 0
                 };
             }
+            function makeAsteroid() {
+                asteroids.push({
+                    radius:15,
+                    x:50,
+                    y:50,
+                    xVelocity: 0,
+                    yVelocity: 0,
+                })
 
+            }
             function rad(deg) {
                 return deg * (Math.PI / 180);
             }
