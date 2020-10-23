@@ -29,15 +29,27 @@
             const canvas = document.getElementById('canvas');
             const player = makePlayer();
             const asteroids = []
-            makeAsteroid ()
+            let asteroidtimer = 3
+            
 
             setInterval(update, 16);
 
             function update() {
                 updateUserInput();
+                updateAsteroidsTimer();
                 updatePhysics();
                 render();
+                
             }
+            function updateAsteroidsTimer() {
+                asteroidtimer -= DT
+                if (asteroidtimer <= 0) {
+                    makeAsteroid ()
+                    asteroidtimer = 5 
+                }
+            }
+
+
 
             function updateUserInput() {
                 const rotationDelta = PLAYER_ROTATION_DEGREES_PER_SECOND * DT;
@@ -60,6 +72,10 @@
 
             function updatePhysics() {
                 enactMotion(player,PLAYER_MAXVELOCITY)
+                
+                for (const asteroid of asteroids) {
+                    enactMotion(asteroid,PLAYER_MAXVELOCITY)
+                }
 
                 if (player.x < 0) {
                      player.x = canvas.width
@@ -73,11 +89,12 @@
                 if (player.y > canvas.height) {
                     player.y = 0
                 }
+                
             }
 
             function enactMotion(entity,maxvelocity) {
-                entity.xVelocity += entity.xAcceleration * DT;
-                entity.yVelocity += entity.yAcceleration * DT;
+                entity.xVelocity += (entity.xAcceleration || 0 )  * DT;
+                entity.yVelocity += (entity.yAcceleration || 0 ) * DT;
                 entity.xVelocity = Math.min(entity.xVelocity,maxvelocity)
                 entity.yVelocity = Math.min(entity.yVelocity,maxvelocity)
                 entity.x += entity.xVelocity * DT;
@@ -128,17 +145,32 @@
                 };
             }
             function makeAsteroid() {
+                const side = randomboolean()
                 asteroids.push({
-                    radius:15,
-                    x:50,
+                    radius:randombetween(10,30),
+                    x:side ? randomchoice(-5,canvas.width+5):randombetween(0,canvas.width),
                     y:50,
-                    xVelocity: 0,
-                    yVelocity: 0,
+                    xVelocity: randombetween(),
+                    yVelocity: 20,
                 })
 
             }
             function rad(deg) {
                 return deg * (Math.PI / 180);
+            }
+            function randombetween(min,max){
+                return min+(Math.random()
+                *(max-min))
+            } 
+            function randomboolean(){
+                return Math.random()<= 0.5
+            }
+            function randomchoice(a,b){
+                if (randomboolean()){
+                    return a
+                    
+                }
+                else return b
             }
 
         </script>
