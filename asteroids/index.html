@@ -29,7 +29,7 @@
             const canvas = document.getElementById('canvas');
             const player = makePlayer();
             const asteroids = []
-            let asteroidtimer = 3
+            let asteroidtimer = 0.5;
             
 
             setInterval(update, 16);
@@ -45,7 +45,7 @@
                 asteroidtimer -= DT
                 if (asteroidtimer <= 0) {
                     makeAsteroid ()
-                    asteroidtimer = 5 
+                    asteroidtimer = 0.5 
                 }
             }
 
@@ -146,13 +146,15 @@
             }
             function makeAsteroid() {
                 const side = randomboolean()
+                const x = side ? randomchoice(-5,canvas.width+5) : randombetween(0,canvas.width);
+                const y = side ? randombetween(0, canvas.height) : randomchoice(-5, canvas.height + 5);
                 asteroids.push({
                     radius:randombetween(10,30),
-                    x:side ? randomchoice(-5,canvas.width+5):randombetween(0,canvas.width),
-                    y:50,
-                    xVelocity: randombetween(),
-                    yVelocity: 20,
-                })
+                    x: x,
+                    y: y,
+                    xVelocity: x < 0 ? randombetween(5, 20) : randombetween(-20, -5),
+                    yVelocity: y < 0 ? randombetween(5, 20) : randombetween(-20, -5),
+                });
 
             }
             function rad(deg) {
