@@ -31,6 +31,7 @@
             let asteroids = []
             let asteroidtimer = 0.5;
             let gametimer = 0
+            let gameover = false
             
 
             setInterval(update, 16);
@@ -40,8 +41,9 @@
                 updateAsteroidsTimer();
                 updatePhysics();
                 render();
+                if(!gameover){
                 gametimer += DT
-                
+                }
             }
             function updateAsteroidsTimer() {
                 asteroidtimer -= DT
@@ -85,10 +87,16 @@
                             asteroid.delete=true
                         }
                      }
+                     if(intersects(player,asteroid)){
+                        gameover = true
+                     }
 
                 }
                 asteroids=asteroids.filter(a => !a.delete)
                 console.log(asteroids.length)
+
+
+
                 
 
                 if (player.x < 0) {
@@ -139,8 +147,13 @@
                 ctx.fillStyle ='white'
                 ctx.font = '50px sans-serif'
                 ctx.fillText (gametimer.toFixed(2),10,60)
-                
-
+              if(gameover){
+                ctx.fillText ('Game Over',canvas.width/2,canvas.height/2)
+              }
+                if(!gameover){
+                ctx.beginPath()
+                ctx.arc(player.x, player.y, player.radius, 0,Math.PI*2)
+                ctx.stroke()
                 const triangle = new Path2D();
                 triangle.moveTo(player.width / 2, 0);
                 triangle.lineTo(0, player.height);
@@ -159,6 +172,7 @@
                 ctx.strokeStyle = 'white';
                 ctx.lineWidth = 2;
                 ctx.stroke(rotatedTriangle);
+                }
                 for(const asteroid of asteroids) {
                     ctx.beginPath()
                     ctx.arc(asteroid.x, asteroid.y, asteroid.radius, 0,Math.PI*2)
@@ -168,6 +182,7 @@
 
             function makePlayer() {
                 return {
+                   radius:PLAYER_WIDTH,
                     width: PLAYER_WIDTH,
                     height: PLAYER_HEIGHT,
                     x: (canvas.width / 2) - (PLAYER_WIDTH / 2),
@@ -209,6 +224,14 @@
                     
                 }
                 else return b
+            }
+            function distance(a,b){
+
+             return Math.sqrt( Math.pow(a.y-b.y,2) + Math.pow(a.x-b.x,2))
+                 
+            }
+            function intersects(a,b){
+             return   distance(a,b) < a.radius+b.radius 
             }
 
         </script>
