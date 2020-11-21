@@ -4,7 +4,7 @@
         <title>Asteroids!</title>
     </head>
     <body>
-        <canvas width="800" height="800" id="canvas" style="margin: auto; display: block; margin-top: 50px"></canvas>
+        <canvas width="800" height="600" id="canvas" style="margin: auto; display: block; margin-top: 50px"></canvas>
 
         <script type="text/javascript">
 
@@ -32,6 +32,9 @@
             let asteroidtimer = 0.5;
             let gametimer = 0
             let gameover = false
+            let bullets = []
+            let bullettimer = 0
+            
             
 
             setInterval(update, 16);
@@ -43,7 +46,9 @@
                 render();
                 if(!gameover){
                 gametimer += DT
+                bullettimer -= DT
                 }
+            
             }
             function updateAsteroidsTimer() {
                 asteroidtimer -= DT
@@ -72,6 +77,9 @@
                    player.yAcceleration = 0 
                    player.xAcceleration = 0
                 }
+                if (pressedKeys.has(' ')){
+                    SpawnBullet(player.x,player.y,player.rotation)
+                }       
             }
 
             function updatePhysics() {
@@ -95,9 +103,20 @@
                 asteroids=asteroids.filter(a => !a.delete)
                 console.log(asteroids.length)
 
+                for (const bullet of bullets){
+                    enactMotion(bullet,200)
+                    bullet.delete=!iswithincanvas(bullet)
+                    for (const asteroid of asteroids){
+                        if (intersects(bullet,asteroid)){
+                            bullet.delete=true
+                            asteroid.delete=true
 
-
-                
+                        }
+                    }
+                    
+                }
+                    bullets = bullets.filter(b =>!b.delete)
+                    asteroids=asteroids.filter(a => !a.delete)
 
                 if (player.x < 0) {
                      player.x = canvas.width
@@ -169,6 +188,11 @@
 	                ctx.closePath();
 	                ctx.restore();
                 }
+                for (const bullet of bullets) {
+                    ctx.beginPath()
+                    ctx.arc(bullet.x, bullet.y, bullet.radius, 0,Math.PI*2)
+                    ctx.stroke()
+                }
                 for(const asteroid of asteroids) {
                     ctx.beginPath()
                     ctx.arc(asteroid.x, asteroid.y, asteroid.radius, 0,Math.PI*2)
@@ -204,6 +228,20 @@
                 });
 
             }
+
+            function SpawnBullet(x,y,angle) {
+                if (bullettimer <= 0){
+                    bullettimer = 1
+                bullets.push({
+                 radius: (2),
+                 x: x,
+                 y: y,
+                 xVelocity:  Math.sin(rad(angle))*200,
+                 yVelocity:   Math.cos(rad(angle))*-200,
+                })
+                }
+            }
+
             function rad(deg) {
                 return deg * (Math.PI / 180);
             }
