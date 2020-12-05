@@ -19,6 +19,14 @@
                 pressedKeys.delete(e.key);
             }
 
+            const clickedmouse = new Set();
+            document.onmousedown =(e) => {
+                clickedmouse.add(e.button)
+            }
+            document.onmouseup = (e) => {
+                clickedmouse.delete(e.button)
+            }
+
             const PLAYER_WIDTH = 15;
             const PLAYER_HEIGHT = 20;
             const PLAYER_ROTATION_DEGREES_PER_SECOND = 200;
@@ -34,6 +42,7 @@
             let gameover = false
             let bullets = []
             let bullettimer = 0
+            let particles = []
             
             
 
@@ -43,6 +52,7 @@
                 updateUserInput();
                 updateAsteroidsTimer();
                 updatePhysics();
+                updateParticles();
                 render();
                 if(!gameover){
                 gametimer += DT
@@ -71,11 +81,12 @@
                 if (pressedKeys.has('ArrowUp') || pressedKeys.has('w')) {
                     player.yAcceleration = Math.cos(rad(player.rotation)) * PLAYER_ACCELERATION * -1;
                     player.xAcceleration = Math.sin(rad(player.rotation)) * PLAYER_ACCELERATION;
+                    spawnParticle(player.x,player.y,1)
                 } else {
                    player.yAcceleration = 0 
                    player.xAcceleration = 0
                 }
-                if (pressedKeys.has(' ')){
+                if (pressedKeys.has(' ')||clickedmouse.has(0)){
                     SpawnBullet(player.x,player.y,player.rotation)
                 }       
             }
@@ -198,6 +209,10 @@
                     ctx.arc(asteroid.x, asteroid.y, asteroid.radius, 0,Math.PI*2)
                     ctx.stroke()
                 }
+                for (const particle of particles) {
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
+                    ctx.fillRect(particle.x,particle.y,1,1)
+                }
             }
 
             function makePlayer() {
@@ -240,6 +255,21 @@
                  yVelocity:   Math.cos(rad(angle))*-200,
                 })
                 }
+            }
+
+            function spawnParticle(x,y,TTL) {
+                particles.push({
+                    x,
+                    y,
+                    TTL
+                })
+            }
+
+            function updateParticles(){
+                for(const particle of particles) {
+                    particle.TTL -= DT
+                }
+                particles = particles.filter(P=>P.TTL > 0)
             }
 
             function rad(deg) {
