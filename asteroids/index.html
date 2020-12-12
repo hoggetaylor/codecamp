@@ -43,7 +43,8 @@
             let bullets = []
             let bullettimer = 0
             let particles = []
-            
+            const highscore = JSON.parse ( localStorage.getItem('highscore') || '0' )
+            console.log(highscore)
             
 
             setInterval(update, 16);
@@ -79,9 +80,11 @@
                 if (player.rotation > 360) { player.rotation = player.rotation % 360; }
                 if (player.rotation < 0) { player.rotation = 360 - player.rotation; }
                 if (pressedKeys.has('ArrowUp') || pressedKeys.has('w')) {
-                    player.yAcceleration = Math.cos(rad(player.rotation)) * PLAYER_ACCELERATION * -1;
-                    player.xAcceleration = Math.sin(rad(player.rotation)) * PLAYER_ACCELERATION;
-                    spawnParticle(player.x,player.y,1)
+                   const xTilt = Math.sin(rad(player.rotation))
+                   const yTilt = Math.cos(rad(player.rotation))  * -1;
+                    player.yAcceleration = yTilt * PLAYER_ACCELERATION;
+                    player.xAcceleration = xTilt * PLAYER_ACCELERATION;
+                    spawnParticle(player.x-(xTilt*15),player.y-(yTilt*15),.5)
                 } else {
                    player.yAcceleration = 0 
                    player.xAcceleration = 0
@@ -106,12 +109,14 @@
                      }
                      if(intersects(player,asteroid)){
                         gameover = true
+                        if (gametimer >highscore ) {
+                            localStorage.setItem('highscore',JSON.stringify( gametimer))
+                        }
                      }
 
                 }
                 asteroids=asteroids.filter(a => !a.delete)
-                console.log(asteroids.length)
-
+                
                 for (const bullet of bullets){
                     enactMotion(bullet,200)
                     bullet.delete=!iswithincanvas(bullet)
@@ -175,7 +180,11 @@
                 ctx.fillStyle ='white'
                 ctx.font = '50px sans-serif'
                 ctx.textAlign = 'left';
+                if (gametimer > highscore){
+                    ctx.fillStyle = 'green'
+                }
                 ctx.fillText (gametimer.toFixed(2),10,60)
+                ctx.fillStyle = 'white'
                 if(gameover){
                     ctx.textAlign = 'center';
                     ctx.fillText ('Game Over',canvas.width/2,canvas.height/2)
@@ -211,7 +220,7 @@
                 }
                 for (const particle of particles) {
                     ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
-                    ctx.fillRect(particle.x,particle.y,1,1)
+                    ctx.fillRect(particle.x,particle.y,particle.width,particle.height)
                 }
             }
 
@@ -261,13 +270,17 @@
                 particles.push({
                     x,
                     y,
-                    TTL
+                    TTL,
+                    width: randombetween(5,10),
+                    height: randombetween(5,10)
                 })
             }
 
             function updateParticles(){
                 for(const particle of particles) {
-                    particle.TTL -= DT
+                    particle.TTL -= DT 
+                    particle.width -= DT *5
+                    particle.height -= DT *5
                 }
                 particles = particles.filter(P=>P.TTL > 0)
             }
