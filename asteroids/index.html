@@ -32,6 +32,7 @@
             const PLAYER_ROTATION_DEGREES_PER_SECOND = 200;
             const PLAYER_ACCELERATION = 105;
             const PLAYER_MAXVELOCITY = 100
+            const GAMEDIFFICULTYDURATION = 30
             const DT = 16.0 / 1000.0;
 
             const canvas = document.getElementById('canvas');
@@ -43,6 +44,7 @@
             let bullets = []
             let bullettimer = 0
             let particles = []
+            let difficulty = 0 
             const highscore = JSON.parse ( localStorage.getItem('highscore') || '0' )
             console.log(highscore)
             
@@ -51,6 +53,7 @@
 
             function update() {
                 updateUserInput();
+                updatedifficulty(); 
                 updateAsteroidsTimer();
                 updatePhysics();
                 updateParticles();
@@ -61,11 +64,16 @@
                 }
             
             }
+            function updatedifficulty() {
+                difficulty = Math.min(gametimer,GAMEDIFFICULTYDURATION)/GAMEDIFFICULTYDURATION 
+                console.log (difficulty) 
+            }
+
             function updateAsteroidsTimer() {
                 asteroidtimer -= DT
                 if (asteroidtimer <= 0) {
                     makeAsteroid ()
-                    asteroidtimer = 1
+                    asteroidtimer = (-2.5*difficulty)+3
                 }
             }
 
@@ -242,12 +250,14 @@
                 const side = randomboolean()
                 const x = side ? randomchoice(-5,canvas.width+5) : randombetween(0,canvas.width);
                 const y = side ? randombetween(0, canvas.height) : randomchoice(-5, canvas.height + 5);
+                const maxvelocity = 15*difficulty+23
+                const minvelocity = 15* difficulty+8
                 asteroids.push({
                     radius:randombetween(10,30),
                     x: x,
                     y: y,
-                    xVelocity: x < 0 ? randombetween(8, 23) : randombetween(-23, -8),
-                    yVelocity: y < 0 ? randombetween(8, 23) : randombetween(-23, -8),
+                    xVelocity: x < 0 ? randombetween(minvelocity, maxvelocity) : randombetween(-maxvelocity, -minvelocity),
+                    yVelocity: y < 0 ? randombetween(minvelocity, maxvelocity) : randombetween(-maxvelocity, -minvelocity),
                     isvisible: false
                 });
 
@@ -255,7 +265,7 @@
 
             function SpawnBullet(x,y,angle) {
                 if (bullettimer <= 0){
-                    bullettimer = 1
+                    bullettimer = -0.5*difficulty+1
                 bullets.push({
                  radius: (2),
                  x: x,
