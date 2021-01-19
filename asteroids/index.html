@@ -45,6 +45,8 @@
             let bullettimer = 0
             let particles = []
             let difficulty = 0 
+            let poweruptimer = 30
+            let powerups = []
             const highscore = JSON.parse ( localStorage.getItem('highscore') || '0' )
             console.log(highscore)
             
@@ -55,6 +57,7 @@
                 updateUserInput();
                 updatedifficulty(); 
                 updateAsteroidsTimer();
+                updatepoweruptimer();
                 updatePhysics();
                 updateParticles();
                 render();
@@ -230,6 +233,12 @@
                     ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
                     ctx.fillRect(particle.x,particle.y,particle.width,particle.height)
                 }
+                for (const powerup of powerups) {
+                    ctx.beginPath()
+                    ctx.strokeStyle = "green"
+                    ctx.arc(powerup.x, powerup.y, powerup.radius, 0,Math.PI*2)
+                    ctx.stroke()
+                }
             }
 
             function makePlayer() {
@@ -261,6 +270,26 @@
                     isvisible: false
                 });
 
+            }
+
+            function updatepoweruptimer() {
+                poweruptimer-=DT
+                if (poweruptimer<0) {
+                      poweruptimer=30
+                      powerups.push ({
+                          radius:10,
+                        x: randombetween(0,canvas.width),
+                        y: randombetween(0,canvas.height),
+                        poweruptype:'rapidfire',
+                        TTL:30,
+                    
+                      })
+                 }
+                 for (const powerup of powerups){
+                    powerup.TTL-=DT
+
+                 }
+                 powerups = powerups.filter(p => p.TTL>0)
             }
 
             function SpawnBullet(x,y,angle) {
