@@ -21,9 +21,11 @@
 
             const clickedmouse = new Set();
             document.onmousedown =(e) => {
+                e.preventDefault()
                 clickedmouse.add(e.button)
             }
             document.onmouseup = (e) => {
+                e.preventDefault()
                 clickedmouse.delete(e.button)
             }
 
@@ -45,9 +47,10 @@
             let bullettimer = 0
             let particles = []
             let difficulty = 0 
-            let poweruptimer = 30
+            let poweruptimer = 5
             let powerups = []
             let effects = []
+            let mines = []
             const highscore = JSON.parse ( localStorage.getItem('highscore') || '0' )
            
             
@@ -100,8 +103,8 @@
                 if (player.rotation > 360) { player.rotation = player.rotation % 360; }
                 if (player.rotation < 0) { player.rotation = 360 - player.rotation; }
                 if (pressedKeys.has('ArrowUp') || pressedKeys.has('w')) {
-                   const xTilt = Math.sin(rad(player.rotation))
-                   const yTilt = Math.cos(rad(player.rotation))  * -1;
+                   const xTilt = Math .sin(rad(player.rotation))
+                   const yTilt= Math.cos(rad(player.rotation))  * -1;
                     player.yAcceleration = yTilt * PLAYER_ACCELERATION;
                     player.xAcceleration = xTilt * PLAYER_ACCELERATION;
                     spawnParticle(player.x-(xTilt*15),player.y-(yTilt*15),.5)
@@ -111,7 +114,20 @@
                 }
                 if (pressedKeys.has(' ')||clickedmouse.has(0)){
                     SpawnBullet(player.x,player.y,player.rotation)
-                }       
+                }      
+                if (clickedmouse.has(2)){
+                    const effect = effects.find(e=>e.effectType==='mine')
+                    if (effect){
+                        effect.TTL=0
+                        mines.push({
+                            x:player.x,
+                            y:player.y,
+                            radius: 10,
+                            blastRadius: randombetween(20,50)
+
+                        })
+                    }
+                }
             }
 
             function updatePhysics() {
@@ -156,7 +172,7 @@
                     if (intersects(player,powerup)){
                         powerup.delete=true
                         effects.push({
-                            TTL: 10,
+                            TTL: powerup.poweruptype === 'rapidfire'? 10:25,
                             effectType: powerup.poweruptype
                         })
                     }
@@ -230,6 +246,7 @@
                     //ctx.stroke()
 
                     ctx.save();
+                    ctx.strokeStyle = effects.some(e=>e.effectType==='mine')?'red':'white'
 	                ctx.translate(player.x, player.y);
 	                ctx.rotate(rad(player.rotation));
 	                ctx.beginPath();
@@ -259,8 +276,20 @@
                 }
                 for (const powerup of powerups) {
                     ctx.beginPath()
-                    ctx.strokeStyle = "green"
+                    if (powerup.poweruptype === 'rapidfire'){
+                        ctx.fillStyle = "green"
+                    }
+                    else {
+                    ctx.fillStyle = "red"
+                    }
                     ctx.arc(powerup.x, powerup.y, powerup.radius, 0,Math.PI*2)
+                    ctx.fill() 
+                    
+                }
+                for (const mine of mines){
+                    ctx.beginPath()
+                    ctx.arc(mine.x, mine.y, mine.radius, 0,Math.PI*2)
+                    ctx.strokeStyle='yellow'
                     ctx.stroke()
                 }
             }
@@ -300,12 +329,12 @@
             function updatepoweruptimer() {
                 poweruptimer-=DT
                 if (poweruptimer<0) {
-                      poweruptimer=30
+                      poweruptimer=5
                       powerups.push ({
                           radius:10,
                         x: randombetween(0,canvas.width),
                         y: randombetween(0,canvas.height),
-                        poweruptype:'rapidfire',
+                        poweruptype:randomchoice('rapidfire','mine'),
                         TTL:30,
                     
                       })
@@ -367,12 +396,11 @@
             function randomboolean(){
                 return Math.random()<= 0.5
             }
-            function randomchoice(a,b){
-                if (randomboolean()){
-                    return a
-                    
-                }
-                else return b
+            function randomchoice(...choices){
+                
+                    const index = Math.floor( choices.length * Math.random() )
+                return choices[index]
+                
             }
             function distance(a,b){
 
