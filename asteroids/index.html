@@ -38,6 +38,8 @@
             const DT = 16.0 / 1000.0;
 
             const canvas = document.getElementById('canvas');
+            canvas.oncontextmenu = () => false; // disable the right click menu
+
             const player = makePlayer();
             let asteroids = []
             let asteroidtimer = 0.5;
