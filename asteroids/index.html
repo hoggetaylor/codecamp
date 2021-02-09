@@ -288,6 +288,12 @@
 	                ctx.stroke();
 	                ctx.closePath();
 	                ctx.restore();
+                    if (player.shield){
+                        ctx.beginPath()
+                    ctx.arc(player.x, player.y, player.radius*2, 0,Math.PI*2)
+                    ctx.fillStyle= "rgba(255, 255, 255, 0.25)"
+                    ctx.fill()
+                    }
                 }
                 for (const bullet of bullets) {
                     ctx.beginPath()
@@ -344,6 +350,7 @@
                     xVelocity: randombetween(-10,10),
                     yVelocity: randombetween(-10,10),
                     rotation: randombetween(0,360),
+                    shield:true
             
                 };
             }
