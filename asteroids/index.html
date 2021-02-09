@@ -53,6 +53,7 @@
             let powerups = []
             let effects = []
             let mines = []
+            let blasts = []
             const highscore = JSON.parse ( localStorage.getItem('highscore') || '0' )
            
             
@@ -64,6 +65,7 @@
                 updatedifficulty(); 
                 updateAsteroidsTimer();
                 updatepoweruptimer();
+                updateblasts();
                 updatePhysics();
                 updateParticles();
                 updateEffects();
@@ -153,7 +155,7 @@
                      }
 
                 }
-                asteroids=asteroids.filter(a => !a.delete)
+                
                 
                 for (const bullet of bullets){
                     enactMotion(bullet,200)
@@ -167,8 +169,7 @@
                     }
                     
                 }
-                    bullets = bullets.filter(b =>!b.delete)
-                    asteroids=asteroids.filter(a => !a.delete)
+                    
 
                 for (const powerup of powerups){
                     if (intersects(player,powerup)){
@@ -180,7 +181,35 @@
                     }
                 } 
 
+                for (const mine of mines){
+                    for (const asteroid of asteroids){
+                        if (intersects( mine,asteroid)){
+                            mine.delete=true
+                            blasts.push({
+                                x:mine.x,
+                                y:mine.y,
+                                radius:mine.radius,
+                                blastRadius:mine.radius*10,
+                            })
+                        }
+                    }
+                }
+
+                for (const blast of blasts){
+                    for (const asteroid of asteroids){
+                        if (intersects(blast,asteroid)){
+                            asteroid.delete=true
+                        }
+                    }
+                }
+
+                mines = mines.filter(b => !b.delete)
+
                 powerups = powerups.filter(b => !b.delete)
+
+                asteroids = asteroids.filter(b => !b.delete)
+
+                bullets = bullets.filter(b => !b.delete)
 
 
                 if (player.x < 0) {
@@ -293,6 +322,13 @@
                     ctx.arc(mine.x, mine.y, mine.radius, 0,Math.PI*2)
                     ctx.strokeStyle='yellow'
                     ctx.stroke()
+                }
+
+                for (const blast of blasts){
+                    ctx.beginPath()
+                    ctx.arc(blast.x, blast.y, blast.radius, 0,Math.PI*2)
+                    ctx.fillStyle='rgba(255, 0, 0, 0.5)'
+                    ctx.fill()
                 }
             }
 
@@ -411,6 +447,14 @@
             }
             function intersects(a,b){
              return   distance(a,b) < a.radius+b.radius 
+            }
+
+            function updateblasts(){
+                for (const blast of blasts){
+                    blast.radius+=100*DT
+                    
+                }
+                blasts = blasts.filter(e=>e.radius<e.blastRadius)
             }
 
         </script>
