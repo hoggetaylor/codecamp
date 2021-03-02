@@ -36,6 +36,7 @@
             const PLAYER_MAXVELOCITY = 100
             const GAMEDIFFICULTYDURATION = 30
             const DT = 16.0 / 1000.0;
+            const CHARGERATE = 0.01
 
             const canvas = document.getElementById('canvas');
             canvas.oncontextmenu = () => false; // disable the right click menu
@@ -54,6 +55,7 @@
             let effects = []
             let mines = []
             let blasts = []
+            let charge=0
             const highscore = JSON.parse ( localStorage.getItem('highscore') || '0' )
            
             
@@ -62,6 +64,7 @@
 
             function update() {
                 updateUserInput();
+                updatecharge();
                 updatedifficulty(); 
                 updateAsteroidsTimer();
                 updatepoweruptimer();
@@ -79,6 +82,21 @@
             function updatedifficulty() {
                 difficulty = Math.min(gametimer,GAMEDIFFICULTYDURATION)/GAMEDIFFICULTYDURATION 
                  
+            }
+
+            function updatecharge(){
+                if (player.shield){
+                    charge-=CHARGERATE*DT*10
+                    if (charge<0){
+                        charge = 0 
+                    }
+                }
+                else {charge+=CHARGERATE*DT
+                if (charge>1){
+                    charge=1
+                }
+
+                }
             }
 
             function updateEffects(){
@@ -132,6 +150,13 @@
                         })
                     }
                 }
+                if (pressedKeys.has('e')){
+                    player.shield=true
+                }
+                else{
+            player.shield=false
+        }
+
             }
 
             function updatePhysics() {
@@ -148,11 +173,15 @@
                         }
                      }
                      if(intersects(player,asteroid)){
-                        gameover = true
+                        if (player.shield &&charge>0){
+                            asteroid.delete=true
+                        }
+                        else {   gameover = true
                         if (gametimer >highscore ) {
                             localStorage.setItem('highscore',JSON.stringify( gametimer))
-                        }
+                        }}
                      }
+
 
                 }
                 
@@ -265,6 +294,14 @@
                 }
                 ctx.fillText (gametimer.toFixed(2),10,60)
                 ctx.fillStyle = 'white'
+                ctx.strokeStyle='white'
+                const chargewidth = canvas.width/2-10
+                ctx.beginPath()
+                ctx.rect(canvas.width/2,20,chargewidth,10)
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.rect(canvas.width/2,20,chargewidth*charge,10)
+                ctx.fill()
                 if(gameover){
                     ctx.textAlign = 'center';
                     ctx.fillText ('Game Over',canvas.width/2,canvas.height/2)
@@ -288,7 +325,7 @@
 	                ctx.stroke();
 	                ctx.closePath();
 	                ctx.restore();
-                    if (player.shield){
+                    if (player.shield &&charge>0){
                         ctx.beginPath()
                     ctx.arc(player.x, player.y, player.radius*2, 0,Math.PI*2)
                     ctx.fillStyle= "rgba(255, 255, 255, 0.25)"
@@ -350,7 +387,7 @@
                     xVelocity: randombetween(-10,10),
                     yVelocity: randombetween(-10,10),
                     rotation: randombetween(0,360),
-                    shield:true
+                    
             
                 };
             }
