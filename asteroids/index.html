@@ -37,6 +37,7 @@
             const GAMEDIFFICULTYDURATION = 30
             const DT = 16.0 / 1000.0;
             const CHARGERATE = 0.01
+            
 
             const canvas = document.getElementById('canvas');
             canvas.oncontextmenu = () => false; // disable the right click menu
@@ -56,6 +57,8 @@
             let mines = []
             let blasts = []
             let charge=0
+            let boss=null
+            let bosstimer=randombetween(5,10)
             const highscore = JSON.parse ( localStorage.getItem('highscore') || '0' )
            
             
@@ -68,6 +71,7 @@
                 updatedifficulty(); 
                 updateAsteroidsTimer();
                 updatepoweruptimer();
+                updatebosstimer();
                 updateblasts();
                 updatePhysics();
                 updateParticles();
@@ -82,6 +86,13 @@
             function updatedifficulty() {
                 difficulty = Math.min(gametimer,GAMEDIFFICULTYDURATION)/GAMEDIFFICULTYDURATION 
                  
+            }
+
+            function updatebosstimer(){
+                bosstimer -= DT
+                if (bosstimer <= 0){
+                    makeboss()
+                }
             }
 
             function updatecharge(){
@@ -161,7 +172,19 @@
 
             function updatePhysics() {
                 enactMotion(player,PLAYER_MAXVELOCITY)
-                
+              if (boss){
+                enactMotion(boss,PLAYER_MAXVELOCITY)
+            }
+                if (boss && intersects(boss,player)){
+                    if (player.shield &&charge>0){
+                            
+                        }
+                        else {   gameover = true
+                        if (gametimer >highscore ) {
+                            localStorage.setItem('highscore',JSON.stringify( gametimer))
+                        }}
+                }
+
                 for (const asteroid of asteroids) {
                     enactMotion(asteroid,PLAYER_MAXVELOCITY)
                     if (iswithincanvas(asteroid)) {
@@ -332,6 +355,18 @@
                     ctx.fill()
                     }
                 }
+                if (boss) { ctx.save();
+	                ctx.translate(boss.x, boss.y);
+	                ctx.rotate(rad(boss.rotation));
+	                ctx.beginPath();
+	                ctx.moveTo(0, -1 * boss.width);
+	                ctx.lineTo(boss.width, boss.width);
+	                ctx.lineTo(-1 * boss.width, boss.width);
+	                ctx.lineTo(0, -1 * boss.width);
+	                ctx.stroke();
+	                ctx.closePath();
+	                ctx.restore();
+                }
                 for (const bullet of bullets) {
                     ctx.beginPath()
                     ctx.arc(bullet.x, bullet.y, bullet.radius, 0,Math.PI*2)
@@ -391,6 +426,22 @@
             
                 };
             }
+
+            function makeboss() {
+               const speed = 10
+                const slope = randombetween(-1,1)
+                const y= -(canvas.width/2) * slope
+                const rad=Math.atan(slope)
+                
+                const x= 0
+
+                boss = {
+                    radius: 50, width: 50, height:40, x:x, y:y, 
+                    health: 100, rotation: 0,xVelocity:Math.sin(rad)*speed, yVelocity:Math.cos(rad)*speed,
+                }
+
+            }
+
             function makeAsteroid() {
                 const side = randomboolean()
                 const x = side ? randomchoice(-5,canvas.width+5) : randombetween(0,canvas.width);
