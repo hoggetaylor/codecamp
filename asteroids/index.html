@@ -92,6 +92,7 @@
                 bosstimer -= DT
                 if (bosstimer <= 0){
                     makeboss()
+                     bosstimer =30
                 }
             }
 
@@ -218,7 +219,16 @@
                             asteroid.delete=true
 
                         }
+                    
                     }
+                    if (boss&&intersects(bullet,boss)){
+                        bullet.delete=true
+                        boss.health --
+                        if (boss.health <= 0){
+                            boss=null
+                        }
+                    }
+
                     
                 }
                     
@@ -363,9 +373,17 @@
 	                ctx.lineTo(boss.width, boss.width);
 	                ctx.lineTo(-1 * boss.width, boss.width);
 	                ctx.lineTo(0, -1 * boss.width);
-	                ctx.stroke();
 	                ctx.closePath();
+                    ctx.stroke();
 	                ctx.restore();
+                   const x=boss.x-(boss.width/2)
+                   const y=boss.y+(boss.height/2)+5
+                   ctx.beginPath();
+                    ctx.rect(x,y,boss.width,10);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.rect(x,y,boss.width*(boss.health/10),10);
+                    ctx.fill();
                 }
                 for (const bullet of bullets) {
                     ctx.beginPath()
@@ -429,7 +447,8 @@
 
             function makeboss() {
                const speed = 10
-                const slope = randombetween(-1,1)
+                const slope = randombetween(0,2)-1 
+                console.log(slope)
                 const y= -(canvas.width/2) * slope
                 const rad=Math.atan(slope)
                 
@@ -437,8 +456,9 @@
 
                 boss = {
                     radius: 50, width: 50, height:40, x:x, y:y, 
-                    health: 100, rotation: 0,xVelocity:Math.sin(rad)*speed, yVelocity:Math.cos(rad)*speed,
+                    health: 10, rotation: 0,xVelocity:Math.cos(rad)*speed, yVelocity:Math.sin(rad)*speed,
                 }
+                console.log(boss)
 
             }
 
