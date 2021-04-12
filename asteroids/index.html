@@ -48,6 +48,7 @@
             let gametimer = 0
             let gameover = false
             let bullets = []
+            let bossbullets = []
             let bullettimer = 0
             let particles = []
             let difficulty = 0 
@@ -72,6 +73,7 @@
                 updateAsteroidsTimer();
                 updatepoweruptimer();
                 updatebosstimer();
+                updateboss();
                 updateblasts();
                 updatePhysics();
                 updateParticles();
@@ -93,6 +95,27 @@
                 if (bosstimer <= 0){
                     makeboss()
                      bosstimer =30
+                }
+            }
+
+            function updateboss(){
+                if (!boss){
+                    return
+                }
+                boss.rotation+=.1
+                boss.rotation%=360
+                boss.bullettimer-=DT
+                if (boss.bullettimer<=0){
+                    bossbullets.push({
+                        radius:3,
+                        x:boss.x,
+                        y:boss.y,
+                        xVelocity:Math.sin(rad(boss.rotation))*200,
+                        yVelocity:Math.cos(rad(boss.rotation))*-200,
+                    })
+                    boss.bulletfired++
+                    boss.bullettimer=0.5
+
                 }
             }
 
@@ -171,6 +194,18 @@
 
             }
 
+            function onPlayerHit(){
+                if (player.shield &&charge>0){
+                    return false
+                } else {
+                    gameover = true
+                    if (gametimer >highscore ) {
+                        localStorage.setItem('highscore',JSON.stringify( gametimer))
+                    }
+                    return true
+                }
+            }
+
             function updatePhysics() {
                 enactMotion(player,PLAYER_MAXVELOCITY)
               if (boss){
@@ -196,15 +231,9 @@
                             asteroid.delete=true
                         }
                      }
-                     if(intersects(player,asteroid)){
-                        if (player.shield &&charge>0){
-                            asteroid.delete=true
-                        }
-                        else {   gameover = true
-                        if (gametimer >highscore ) {
-                            localStorage.setItem('highscore',JSON.stringify( gametimer))
-                        }}
-                     }
+                     if(intersects(player,asteroid,)&&onPlayerHit()){
+                    asteroid.delete=true    
+                    }
 
 
                 }
@@ -219,6 +248,8 @@
                             asteroid.delete=true
 
                         }
+
+                        
                     
                     }
                     if (boss&&intersects(bullet,boss)){
@@ -227,6 +258,18 @@
                         if (boss.health <= 0){
                             boss=null
                         }
+                    }
+
+                    
+                }
+
+
+                for (const bullet of bossbullets){
+                    enactMotion(bullet,200)
+                    bullet.delete=!iswithincanvas(bullet)
+                    if (intersects(bullet,player)&&onPlayerHit()){
+                        bullet.delete=true
+                       
                     }
 
                     
@@ -272,6 +315,8 @@
                 asteroids = asteroids.filter(b => !b.delete)
 
                 bullets = bullets.filter(b => !b.delete)
+
+                bullets = bossbullets.filter(b => !b.delete)
 
 
                 if (player.x < 0) {
@@ -390,7 +435,15 @@
                     ctx.arc(bullet.x, bullet.y, bullet.radius, 0,Math.PI*2)
                     ctx.strokeStyle=bullet.color
                     ctx.stroke()
-                }
+                }                
+                for (const bullet of bossbullets) {
+                    ctx.beginPath()
+                    ctx.arc(bullet.x, bullet.y, bullet.radius, 0,Math.PI*2)
+                    ctx.strokeStyle='red'
+                    ctx.stroke()
+                }                
+
+
                 for(const asteroid of asteroids) {
                     ctx.beginPath()
                     ctx.arc(asteroid.x, asteroid.y, asteroid.radius, 0,Math.PI*2)
@@ -457,6 +510,7 @@
                 boss = {
                     radius: 50, width: 50, height:40, x:x, y:y, 
                     health: 10, rotation: 0,xVelocity:Math.cos(rad)*speed, yVelocity:Math.sin(rad)*speed,
+                    bullettimer:1,bulletfired:0
                 }
                 console.log(boss)
 
