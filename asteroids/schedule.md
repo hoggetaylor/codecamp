@@ -22,8 +22,19 @@
 
 ## Ideas
 
-- Varying levels of difficulty.
-    Easy: asteroid every 20 seconds
-    Medium: asteroid every 10 seconds
-    Hard: asteroid every 5 seconds
-    Extra Hard: asteroid every second + solar flare
+------- Varying levels of difficulty.  
+   ---------- mine power up alowes you to place mines that blow up when shot or hit
+    --------reduced cool down for gun power up
+   ---------- dreadnaght shoots in random direction
+   ----------  visable boost 
+  -----------  gun activated by mouse 
+    ---------  high socre seystem 
+    mutiplayer 
+    sounds grapics 
+    *soalr flare
+   --------- sheild 
+
+
+   fix 
+   fix where the boss spawns 
+   fix blance
