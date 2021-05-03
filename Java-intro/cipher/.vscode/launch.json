@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "App",
             "projectName": "cipher_cbdbf48f",
-            "args": ["Rudger","5"]
+            "args": []
         }
     ]
 }
